@@ -1,8 +1,3 @@
-
-
-# TOTAL_ROWS = 1_000_000_000
-# BATCH_SIZE = 1_000_000
-
 # order_id: ID sequencial do pedido.
 # user_id: ID inteiro do usuário.
 # product_id: ID inteiro do produto.
@@ -24,6 +19,8 @@ Faker.seed(42)
 random.seed(42)
 
 # Parâmetros (AJUSTADOS PARA TESTE)
+# TOTAL_ROWS = 1_000_000_000
+# BATCH_SIZE = 1_000_000
 TOTAL_ROWS = 10_000
 BATCH_SIZE = 2_500
 OUTPUT_FILE = "user_purchases.parquet"
