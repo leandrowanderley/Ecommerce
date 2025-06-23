@@ -1,0 +1,29 @@
+# Arquivos de ambiente - Contém senhas e chaves!
+.env
+
+# Dependências e caches do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+/pip-cache/
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Dados do Data Lake (MinIO) - NUNCA envie dados para o Git!
+/data/
+
+# Logs e saídas geradas pelas ferramentas
+/logs/
+/dbt/logs/
+/dbt/target/
+
+# Arquivos de configuração de IDEs
+.vscode/
+.idea/
+*.DS_Store

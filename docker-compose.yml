@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  # Define um único serviço para executar a geração de dados
+  generate-data-task:
+    # 'build: .' instrui o Compose a construir a imagem usando o Dockerfile na pasta atual (raiz)
+    build: .
+
+    # 'command' define qual comando será executado ao iniciar o container
+    command: python app/app.py
+
+    # 'volumes' mapeia uma pasta do seu computador para uma pasta dentro do container
+    # - ./data: É uma pasta chamada 'data' que será criada no seu computador
+    # - /data: É a pasta dentro do container para a qual o app.py irá escrever
+    volumes:
+      - ./data:/data
