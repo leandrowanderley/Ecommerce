@@ -1,16 +1,49 @@
 version: '3.8'
 
 services:
-  # Define um único serviço para executar a geração de dados
+  # SERVIÇO DO MINIO (NOSSO DATA LAKE)
+  # minio:
+  #   image: minio/minio:latest
+  #   container_name: minio
+  #   # Comando para iniciar o servidor MinIO e a interface de usuário (Console)
+  #   command: server /data --console-address ":9001"
+  #   ports:
+  #     # Porta da API do MinIO
+  #     - "9000:9000"
+  #     # Porta da Interface Gráfica do MinIO
+  #     - "9001:9001"
+  #   environment:
+  #     # Credenciais de acesso. NÃO USE EM PRODUÇÃO.
+  #     - MINIO_ROOT_USER=minioadmin
+  #     - MINIO_ROOT_PASSWORD=minioadmin
+  #   volumes:
+  #     # Mapeia uma pasta local 'minio_data' para persistir os dados do MinIO
+  #     - ./minio_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+  #     interval: 30s
+  #     timeout: 20s
+  #     retries: 3
+
+  # # SERVIÇO PARA CRIAR OS BUCKETS AUTOMATICAMENTE
+  # create-buckets:
+  #   image: minio/mc
+  #   container_name: mc
+  #   depends_on:
+  #     minio:
+  #       condition: service_healthy
+  #   entrypoint: /bin/sh
+  #   command: -c "
+  #     /usr/bin/mc alias set minio http://minio:9000 minioadmin minioadmin;
+  #     /usr/bin/mc mb minio/bronze;
+  #     /usr/bin/mc mb minio/silver;
+  #     /usr/bin/mc mb minio/gold;
+  #     echo 'Buckets bronze, silver e gold criados com sucesso.';
+  #     "
+
+  # Define um serviço para executar a geração de dados
   generate-data-task:
-    # 'build: .' instrui o Compose a construir a imagem usando o Dockerfile na pasta atual (raiz)
     build: .
-
-    # 'command' define qual comando será executado ao iniciar o container
     command: python app/app.py
-
-    # 'volumes' mapeia uma pasta do seu computador para uma pasta dentro do container
-    # - ./data: É uma pasta chamada 'data' que será criada no seu computador
-    # - /data: É a pasta dentro do container para a qual o app.py irá escrever
     volumes:
       - ./data:/data

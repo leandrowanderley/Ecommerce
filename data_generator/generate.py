@@ -12,59 +12,75 @@ import polars as pl
 from faker import Faker
 import pyarrow.parquet as pq
 import random
-
+import os
 
 fake = Faker()
 Faker.seed(42)
 random.seed(42)
 
-# Parâmetros (AJUSTADOS PARA TESTE)
-# TOTAL_ROWS = 1_000_000_000
-# BATCH_SIZE = 1_000_000
-TOTAL_ROWS = 10_000
-BATCH_SIZE = 2_500
-OUTPUT_FILE = "user_purchases.parquet"
-CATEGORIES = ["Eletrônicos", "Livros", "Roupas", "Alimentos", "Móveis", "Brinquedos", "Beleza"]
 STATUS_OPTIONS = ["completed", "shipped", "cancelled"]
 
-def generate_batch(start_id: int, batch_size: int) -> pl.DataFrame:
+REAL_PRODUCTS_BY_CATEGORY = {
+    "Eletrônicos": [
+        "Smartphone Galaxy S25", "Notebook UltraBook i7", "Smart TV 4K 55 Polegadas",
+        "Fone de Ouvido Bluetooth TWS", "Monitor Gamer Curvo 27 pol", "Carregador Portátil 20000mAh"
+    ],
+    "Livros": [
+        "O Senhor dos Anéis: A Sociedade do Anel", "A Culpa é das Estrelas", "O Guia do Mochileiro das Galáxias",
+        "Sapiens: Uma Breve História da Humanidade", "Duna", "O Poder do Hábito"
+    ],
+    "Roupas": [
+        "Camiseta de Algodão Básica", "Calça Jeans Slim Fit", "Jaqueta Corta-Vento Impermeável",
+        "Vestido Floral de Verão", "Tênis de Corrida Performance", "Moletom com Capuz"
+    ],
+    "Alimentos": [
+        "Café Gourmet Grãos 1kg", "Azeite de Oliva Extra Virgem 500ml", "Barra de Proteína Sabor Chocolate",
+        "Arroz Integral Orgânico 1kg", "Molho de Tomate Artesanal", "Vinho Tinto Cabernet Sauvignon"
+    ],
+    "Móveis": [
+        "Cadeira de Escritório Ergonômica", "Mesa de Jantar 4 Lugares", "Sofá Retrátil 3 Lugares",
+        "Estante para Livros 5 Prateleiras", "Guarda-Roupa Casal com Espelho"
+    ],
+    "Brinquedos": [
+        "Blocos de Montar - Castelo Medieval", "Quebra-Cabeça 1000 Peças - Paisagem", "Carro de Controle Remoto 4x4",
+        "Boneca Articulada com Acessórios", "Jogo de Tabuleiro - Conquista Espacial"
+    ],
+    "Beleza": [
+        "Protetor Solar FPS 50", "Creme Hidratante Facial Noturno", "Shampoo para Cabelos Cacheados",
+        "Perfume Masculino Amadeirado", "Kit de Maquiagem Essencial"
+    ]
+}
+CATEGORIES = list(REAL_PRODUCTS_BY_CATEGORY.keys())
+
+def generate_data(start_id: int, batch_size: int) -> pl.DataFrame:
+    products = []
+    categories = []
+
+    for _ in range(batch_size):
+        selected_category = random.choice(CATEGORIES)
+        selected_product = random.choice(REAL_PRODUCTS_BY_CATEGORY[selected_category])
+        products.append(selected_product)
+        categories.append(selected_category)
+
     data = {
-        "order_id": list(range(start_id, start_id + batch_size)),
+        "order_id": range(start_id, start_id + batch_size),
         "user_id": [random.randint(1, 10_000_000) for _ in range(batch_size)],
         "product_id": [random.randint(1, 1_000_000) for _ in range(batch_size)],
-        "product_name": [fake.word().capitalize() for _ in range(batch_size)],
-        "category": [random.choice(CATEGORIES) for _ in range(batch_size)],
+        "product_name": products,
+        "category": categories,
         "price": [round(random.uniform(5, 1000), 2) for _ in range(batch_size)],
         "quantity": [random.randint(1, 10) for _ in range(batch_size)],
-        # --- MUDANÇA AQUI ---
-        # Formatamos a data para uma string legível usando strftime
-        "order_date": [fake.date_time_between(start_date='-2y', end_date='now').strftime('%Y-%m-%d %H:%M:%S') for _ in range(batch_size)],
+        "order_date": [fake.date_time_between(start_date='-2y', end_date='now') for _ in range(batch_size)],
         "status": [random.choice(STATUS_OPTIONS) for _ in range(batch_size)],
     }
-    return pl.DataFrame(data)
-
-def generate_data(output_path: str):
-    print("Gerando o primeiro lote para definir o schema...")
-    first_batch = generate_batch(0, BATCH_SIZE)
-
-    arrow_schema = first_batch.to_arrow().schema
-
-    writer = None
-    try:
-        writer = pq.ParquetWriter(output_path, arrow_schema, compression="snappy")
-
-        # 2. Escreve o primeiro lote
-        writer.write_table(first_batch.to_arrow())
-        print(f"Lote inicial (0 a {BATCH_SIZE - 1}) salvo.")
-
-        # 3. Itera sobre os lotes restantes e os escreve
-        for i in range(BATCH_SIZE, TOTAL_ROWS, BATCH_SIZE):
-            print(f"Gerando e salvando linhas {i} até {i + BATCH_SIZE - 1}...")
-            batch = generate_batch(i, BATCH_SIZE)
-            writer.write_table(batch.to_arrow())
-
-        print(f"Arquivo {output_path} gerado com sucesso com {TOTAL_ROWS} linhas.")
-    finally:
-        if writer:
-            writer.close()
-        print("Processo concluído.")
+    return pl.DataFrame(data, schema={
+            "order_id": pl.UInt64,
+            "user_id": pl.UInt32,
+            "product_id": pl.UInt32,
+            "product_name": pl.String,
+            "category": pl.Categorical,
+            "price": pl.Float32,
+            "quantity": pl.UInt8,
+            "order_date": pl.Datetime,
+            "status": pl.Categorical
+        })
