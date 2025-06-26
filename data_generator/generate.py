@@ -63,24 +63,24 @@ def generate_data(start_id: int, batch_size: int) -> pl.DataFrame:
         categories.append(selected_category)
 
     data = {
-        "order_id": range(start_id, start_id + batch_size),
-        "user_id": [random.randint(1, 10_000_000) for _ in range(batch_size)],
-        "product_id": [random.randint(1, 1_000_000) for _ in range(batch_size)],
+        # "order_id": range(start_id, start_id + batch_size),
+        # "user_id": [random.randint(1, 10_000_000) for _ in range(batch_size)],
+        # "product_id": [random.randint(1, 1_000_000) for _ in range(batch_size)],
         "product_name": products,
-        "category": categories,
+        # "category": categories,
         "price": [round(random.uniform(5, 1000), 2) for _ in range(batch_size)],
-        "quantity": [random.randint(1, 10) for _ in range(batch_size)],
+        # "quantity": [random.randint(1, 10) for _ in range(batch_size)],
         "order_date": [fake.date_time_between(start_date='-2y', end_date='now') for _ in range(batch_size)],
-        "status": [random.choice(STATUS_OPTIONS) for _ in range(batch_size)],
+        # "status": [random.choice(STATUS_OPTIONS) for _ in range(batch_size)],
     }
     return pl.DataFrame(data, schema={
-            "order_id": pl.UInt64,
-            "user_id": pl.UInt32,
-            "product_id": pl.UInt32,
+            # "order_id": pl.UInt64,
+            # "user_id": pl.UInt32,
+            # "product_id": pl.UInt32,
             "product_name": pl.String,
-            "category": pl.Categorical,
+            # "category": pl.Categorical,
             "price": pl.Float32,
-            "quantity": pl.UInt8,
+            # "quantity": pl.UInt8,
             "order_date": pl.Datetime,
-            "status": pl.Categorical
+            # "status": pl.Categorical
         })
