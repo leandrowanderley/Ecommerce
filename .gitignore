@@ -17,6 +17,7 @@ build/
 
 # Dados do Data Lake (MinIO) - NUNCA envie dados para o Git!
 /data/
+/minio_data/
 
 # Logs e saídas geradas pelas ferramentas
 /logs/
