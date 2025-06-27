@@ -6,7 +6,7 @@ def main():
     
     
     print("Gerando dados de compras...")
-    generate_call()
+    # generate_call()
     print("E-commerce finalizado.")
     
 
