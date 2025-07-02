@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # SERVIÇO DO MINIO
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:RELEASE.2025-02-03T21-03-04Z-cpuv1
     container_name: minio
     # Comando para iniciar o servidor MinIO e a interface de usuário (Console)
     command: server /data --console-address ":9001"
@@ -20,6 +20,7 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+      start_period: 60s
 
   create-buckets:
     image: minio/mc
