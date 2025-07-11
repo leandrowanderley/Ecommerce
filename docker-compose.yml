@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # SERVIÇO DO MINIO
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-02-03T21-03-04Z-cpuv1
+    image: minio/minio:RELEASE.2025-02-03T21-03-04Z-cpuv1
     container_name: minio
     # Comando para iniciar o servidor MinIO e a interface de usuário (Console)
     command: server /data --console-address ":9001"
@@ -15,26 +15,21 @@ services:
       - MINIO_ROOT_PASSWORD=minioadmin
     volumes:
       - ./minio_data:/data
-    healthcheck:
-      test: curl --fail http://localhost:9000/minio/health/live || exit 1
-      interval: 30s
-      timeout: 20s
-      retries: 3
-      start_period: 60s
 
   create-buckets:
     image: minio/mc
     container_name: mc
     depends_on:
-      minio:
-        condition: service_healthy
+      - minio
     entrypoint: /bin/sh
     command: -c "
+      echo 'Aguardando 30s, para garantir o MinIO iniciar...';
+      sleep 30;
       /usr/bin/mc alias set minio http://minio:9000 minioadmin minioadmin;
       /usr/bin/mc mb minio/bronze;
       /usr/bin/mc mb minio/silver;
       /usr/bin/mc mb minio/gold;
-      echo 'Buckets bronze, silver e gold criados com sucesso.';
+      echo 'Buckets bronze, silver e gold criados/ja existentes.';
       "
 
   app:
