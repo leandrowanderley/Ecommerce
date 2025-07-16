@@ -2,11 +2,10 @@ from data_generator.generate import generate_data
 import os
 import pyarrow.parquet as pq
 
-# TOTAL_ROWS = 1_000_000_000
-# BATCH_SIZE = 1_000_000
-TOTAL_ROWS = 10_000_000
-BATCH_SIZE = 2_500_000
-OUTPUT_FILE = "/data/user_purchases_optimized.parquet"
+TOTAL_ROWS = int(os.getenv("TOTAL_ROWS", "10000000"))
+BATCH_SIZE = int(os.getenv("BATCH_SIZE", "2500000"))
+OUTPUT_FILE = os.getenv("OUTPUT_FILE", "/data/user_purchases_optimized.parquet")
+
 STATUS_OPTIONS = ["completed", "shipped", "cancelled"]
 
 def generate_call():

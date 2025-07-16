@@ -2,3 +2,4 @@ polars
 faker
 pyarrow
 numpy
+duckdb

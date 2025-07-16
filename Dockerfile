@@ -14,3 +14,4 @@ RUN pip install -r requirements.txt
 # 5. Copiar todo o código do projeto para o container
 COPY ./app ./app
 COPY ./data_generator ./data_generator
+COPY ./duckdb_analyzer ./duckdb_analyzer

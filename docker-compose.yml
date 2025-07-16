@@ -37,3 +37,18 @@ services:
     command: python app/app.py
     volumes:
       - ./data:/data
+    environment:
+      - TOTAL_ROWS=10000000
+      - BATCH_SIZE=2500000
+      - OUTPUT_FILE=/data/user_purchases_optimized.parquet
+  
+  duckdb_analyzer:
+    build:
+      context: .
+    command: python duckdb_analyzer/analyze.py
+    environment:
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    depends_on:
+      - create-buckets
